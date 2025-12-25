@@ -96,14 +96,15 @@
             </li>
 			@endif
 
-            @permission('users.manage')
+            {{-- ATM System Disabled --}}
+            {{-- @permission('users.manage')
             <li class="{{ Request::is('backend/atm*') ? 'active' : ''  }}">
                 <a href="{{ url('/backend/atm') }}">
                     <i class="fa fa-credit-card"></i>
                     <span>@lang('app.atm')</span>
                 </a>
             </li>
-            @endpermission
+            @endpermission --}}
 
             @permission('users.tree')
             <li class="{{ Request::is('backend/tree*') ? 'active' : ''  }}">

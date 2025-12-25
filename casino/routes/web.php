@@ -228,13 +228,13 @@ Route::prefix('backend')
         Route::post('/terminal/balance/out', 'TerminalController@balanceOut');
         Route::post('/terminal/ajax/pay-tickets', 'TerminalController@ajaxPayTickets');
 
-        // ATM
-        Route::get('/atm', 'AtmController@index');
-        Route::get('/atm/create', 'AtmController@createNewAtm');
-        Route::get('/atm/reset', 'AtmController@resetAtm');
-        Route::get('/atm/status/{status}', 'AtmController@statusUpdate');
-        Route::get('/atm/newkey/{api_id}', 'AtmController@newApiKey');
-        Route::get('/atm/delete/{id}/{api_id}', 'AtmController@deleteATM');
+        // ATM - DISABLED
+        // Route::get('/atm', 'AtmController@index');
+        // Route::get('/atm/create', 'AtmController@createNewAtm');
+        // Route::get('/atm/reset', 'AtmController@resetAtm');
+        // Route::get('/atm/status/{status}', 'AtmController@statusUpdate');
+        // Route::get('/atm/newkey/{api_id}', 'AtmController@newApiKey');
+        // Route::get('/atm/delete/{id}/{api_id}', 'AtmController@deleteATM');
 
 Route::redirect('/netpos', '/backend/user')->name('netpos');
 

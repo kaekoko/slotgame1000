@@ -83,15 +83,15 @@
                                         <td>
                                             @if( strripos($security->type, 'user')  !== false )
                                                 <a href="{{ route('backend.user.edit', $security->item_id) }}">
-                                                    {{ $security->user->username }}
+                                                    {{ $security->user ? $security->user->username : 'N/A' }}
                                                 </a>
                                             @elseif( strripos($security->type, 'shop')  !== false )
                                                 <a href="{{ route('backend.shop.edit', $security->item_id) }}">
-                                                    {{ $security->shop->name }}
+                                                    {{ $security->shop ? $security->shop->name : 'N/A' }}
                                                 </a>
                                             @else
                                                 <a href="{{ route('backend.game.edit', $security->item_id) }}">
-                                                    {{ $security->game->name }}
+                                                    {{ $security->game ? $security->game->name : 'N/A' }}
                                                 </a>
                                             @endif
                                             <br>

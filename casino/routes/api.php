@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use VanguardLTE\Http\Controllers\Api\V2\AtmController;
+// ATM System Disabled
+// use VanguardLTE\Http\Controllers\Api\V2\AtmController;
 
 Route::group(['middleware' => ['ipcheck']], function () {
 
@@ -103,8 +104,8 @@ Route::get('cashier/readinamounts', 'Player\StatusController@loadInAmounts');
 																							
 																	 
 // ==========================================================================================
-// V3 APIs Newly developed - 17-07-2021 
-Route::post('/V2', [AtmController::class, 'index']);
+// V3 APIs Newly developed - 17-07-2021 - ATM DISABLED
+// Route::post('/V2', [AtmController::class, 'index']);
 
 
 /*

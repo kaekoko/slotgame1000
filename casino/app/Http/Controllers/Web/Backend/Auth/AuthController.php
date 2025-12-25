@@ -1,13 +1,16 @@
 <?php 
 namespace VanguardLTE\Http\Controllers\Web\Backend\Auth;
+
 use Illuminate\Support\Facades\Notification;
-use VanguardLTE\Notifications\UserRegistered;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use VanguardLTE\Notifications\UserRegistered;
+
+include_once(base_path() . '/app/ShopCore.php');
+include_once(base_path() . '/app/ShopGame.php');
+
+class AuthController extends \VanguardLTE\Http\Controllers\Controller
 {
-    include_once(base_path() . '/app/ShopCore.php');
-    include_once(base_path() . '/app/ShopGame.php');
-    class AuthController extends \VanguardLTE\Http\Controllers\Controller
-    {
         private $users = null;
         public function __construct(\VanguardLTE\Repositories\User\UserRepository $users)
         {
@@ -37,22 +40,34 @@ use Illuminate\Support\Facades\Mail;
         }
         public function postLogin(\VanguardLTE\Http\Requests\Auth\LoginRequest $request, \VanguardLTE\Repositories\Session\SessionRepository $sessionRepository)
         {
+            Log::info('=== Backend Login Attempt ===');
+            Log::info('Username: ' . $request->input('username'));
+            
             $throttles = settings('throttle_enabled');
             $to = ($request->has('to') ? '?to=' . $request->get('to') : '');
+            
             if( $throttles && $this->hasTooManyLoginAttempts($request) ) 
             {
+                Log::warning('Login throttled');
                 return $this->sendLockoutResponse($request);
             }
+            
             $credentials = $request->getCredentials();
+            Log::info('Credentials prepared', ['username' => $credentials['username'] ?? 'N/A']);
+            
             if( !\Auth::validate($credentials) ) 
             {
+                Log::error('Auth validation failed - Invalid credentials');
                 if( $throttles ) 
                 {
                     $this->incrementLoginAttempts($request);
                 }
                 return redirect()->to('backend/login' . $to)->withErrors(trans('auth.failed'));
             }
+            
+            Log::info('Auth validation passed');
             $user = \Auth::getProvider()->retrieveByCredentials($credentials);
+            Log::info('User retrieved', ['id' => $user->id, 'username' => $user->username, 'role_id' => $user->role_id]);
             if( $request->lang ) 
             {
                 $user->update(['language' => $request->lang]);
@@ -62,23 +77,9 @@ use Illuminate\Support\Facades\Mail;
                 \Auth::logout();
                 return redirect()->route('backend.auth.login')->withErrors(trans('app.site_is_turned_off'));
             }
-            $data = \VanguardLTE\Lib\GeoData::get_data();
-            if( $data['country'] != '' && !$user->country ) 
-            {
-                $user->update(['country' => $data['country']]);
-            }
-            if( $data['city'] != '' && !$user->town ) 
-            {
-                $user->update(['town' => $data['city']]);
-            }
-            if( $data['country'] == '' ) 
-            {
-                return redirect()->route('backend.auth.login')->withErrors(trans('app.unknown_country'));
-            }
-            if( \VanguardLTE\Lib\Filter::country_filtered($user, $data['country']) ) 
-            {
-                return redirect()->route('backend.auth.login')->withErrors(trans('app.blocked_phone_zone'));
-            }
+           
+       
+         
             if( $user->isBlocked() ) 
             {
                 return redirect()->to('backend/login' . $to)->withErrors(trans('app.your_shop_is_blocked'));
@@ -180,19 +181,16 @@ use Illuminate\Support\Facades\Mail;
             $user->attachRole($role);
             event(new \VanguardLTE\Events\User\Registered($user));
             // Retrieve the register_notify_email from .env, if it's not set, default to null
-$registerNotifyEmail = env('REGISTER_NOTIFY_EMAIL', null);
+            $registerNotifyEmail = env('REGISTER_NOTIFY_EMAIL', null);
 
-if (!empty($registerNotifyEmail)) {
-    // Backend notification raw email about every registration
-    Mail::raw('A new user has registered: ' . $user->username, function ($message) use ($user, $registerNotifyEmail) {
-        $message->to($registerNotifyEmail)
-                ->subject('New User Registration');
-    });
-}
-
+            if (!empty($registerNotifyEmail)) {
+                // Backend notification raw email about every registration
+                Mail::raw('A new user has registered: ' . $user->username, function ($message) use ($user, $registerNotifyEmail) {
+                    $message->to($registerNotifyEmail)
+                            ->subject('New User Registration');
+                });
+            }
 
             return redirect('/backend/login')->with('success', trans('app.account_created_login'));
         }
-    }
-
 }

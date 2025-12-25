@@ -97,7 +97,7 @@
                                             <td>
                                             @if( $stat->payeer && $stat->payeer->hasRole(['cashier']))
                                                 <a href="{{ route('backend.user.edit', $stat->payeer->id)  }}">
-                                                    {{ $stat->payeer->username }}
+                                                    {{ $stat->payeer->username ?? 'N/A' }}
                                                 </a>
                                             @endif
 
@@ -291,7 +291,7 @@
                                             @if(!auth()->user()->hasRole('cashier'))
                                                 <td>{{ $stat->id }}</td>
                                             @endif
-                                            <td>{{ $stat->user->username }}</td>
+                                            <td>{{ $stat->user ? $stat->user->username : 'N/A' }}</td>
                                             <td>{{ date(config('app.date_time_format'), strtotime($stat->start_date)) }}</td>
                                             <td>{{ $stat->end_date ? date(config('app.date_time_format'), strtotime($stat->end_date)) : '' }}</td>
                                             @if(!auth()->user()->hasRole('cashier'))

@@ -30,13 +30,31 @@ class GeoData {
         }
 
         if( UserSystemInfoHelper::get_ip() == 'UNKNOWN'){
+            $data['country'] = 'Unknown';
+            $data['city'] = 'Unknown';
             return $data;
         }
 
-        $reader = new Reader(storage_path() . '/app/GeoIP2-City_20201006/GeoIP2-City.mmdb');
+        // GeoIP Database disabled - return default values
+        // If you want to enable GeoIP, download the database and uncomment the code below
+        $data['country'] = 'Unknown';
+        $data['city'] = 'Unknown';
+        return $data;
+
+        /* GEOIP DATABASE CODE - DISABLED
+        $geoDbPath = storage_path() . '/app/GeoIP2-City_20201006/GeoIP2-City.mmdb';
+        
+        // Check if database file exists
+        if (!file_exists($geoDbPath)) {
+            $data['country'] = 'Unknown';
+            $data['city'] = 'Unknown';
+            return $data;
+        }
 
         try {
+            $reader = new Reader($geoDbPath);
             $record = $reader->city(UserSystemInfoHelper::get_ip());
+            
             if (isset($record->country->name)) {
                 $data['country'] = $record->country->name;
             }
@@ -49,9 +67,13 @@ class GeoData {
         } catch (AddressNotFoundException $e) {
             $data['country'] = 'Unknown';
             $data['city'] = 'Unknown';
+        } catch (\Exception $e) {
+            $data['country'] = 'Unknown';
+            $data['city'] = 'Unknown';
         }
 
         return $data;
+        */
     }
 
 }
